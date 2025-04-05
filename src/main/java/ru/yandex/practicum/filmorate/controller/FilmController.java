@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +25,18 @@ public class FilmController {
         return nextId++;
     }
 
+    private void validateFilm(Film film) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidateException("Дата выпуска фильма слишком старая");
+        }
+        if (film.getDuration() <= 0) {
+            throw new ValidateException("Продолжительность фильма должна быть больше 0");
+        }
+    }
+
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
+        validateFilm(film);
         film.setId(getNextId());
         storage.put(film.getId(), film);
         log.info("Фильм добавлен: {}", film);
@@ -40,6 +51,7 @@ public class FilmController {
         if (!storage.containsKey(film.getId())) {
             throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
         }
+        validateFilm(film);
         storage.put(film.getId(), film);
         log.info("Фильм обновлён: {}", film);
         return film;
