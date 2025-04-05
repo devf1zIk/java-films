@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
@@ -13,12 +12,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 @RequiredArgsConstructor
 public class FilmController {
 
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     private final Map<Integer, Film> storage = new LinkedHashMap<>();
     private int nextId = 1;
 
@@ -26,21 +25,8 @@ public class FilmController {
         return nextId++;
     }
 
-    private void validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ValidateException("Имя фильма не может быть пустым");
-        }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidateException("Дата выпуска фильма слишком старая");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidateException("Продолжительность фильма должна быть больше 0");
-        }
-    }
-
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        validateFilm(film);
         film.setId(getNextId());
         storage.put(film.getId(), film);
         log.info("Фильм добавлен: {}", film);
@@ -55,7 +41,6 @@ public class FilmController {
         if (!storage.containsKey(film.getId())) {
             throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
         }
-        validateFilm(film);
         storage.put(film.getId(), film);
         log.info("Фильм обновлён: {}", film);
         return film;

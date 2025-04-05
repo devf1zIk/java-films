@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -11,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final Map<Integer, User> users = new HashMap<>();
     private int nextId = 1;
 
@@ -24,24 +23,8 @@ public class UserController {
         return nextId++;
     }
 
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new ValidateException("Пользователь не может быть null");
-        }
-        if (user.getEmail() == null || !user.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            throw new ValidateException("Некорректный email");
-        }
-        if (user.getLogin() == null || user.getLogin().isBlank()) {
-            throw new ValidateException("Логин не может быть пустым");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-    }
-
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        validateUser(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Пользователь с email {} добавлен с ID {}", user.getEmail(), user.getId());
@@ -50,7 +33,6 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        validateUser(user);
         if (!users.containsKey(user.getId())) {
             throw new IllegalArgumentException("ID пользователя не может быть null или отсутствовать при обновлении");
         }
