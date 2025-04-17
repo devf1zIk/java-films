@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.AppErrorException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -48,21 +49,20 @@ public class UserService {
         return List.of(user, friend);
     }
 
-    public List<User> removeFriendship(int firstId, int secondId) {
-        checkUserExists(firstId);
-        checkUserExists(secondId);
-        User firstUser = userStorage.getUser(firstId);
-        User secondUser = userStorage.getUser(secondId);
+    public List<User> removeFriendship(int userId, int friendId) {
+        User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
 
-        if (!firstUser.getFriends().contains(firstUser.getId()) || !secondUser.getFriends().contains(secondUser.getId())) {
+        if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
             throw new ValidateException("Пользователи не являются друзьями");
         }
 
-        firstUser.getFriends().remove(secondId);
-        secondUser.getFriends().remove(firstId);
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
 
-        log.info("Пользователи '{}' и '{}' больше не друзья", firstUser.getName(), secondUser.getName());
-        return List.of(firstUser, secondUser);
+        log.info("Пользователи '{}' и '{}' больше не друзья", user.getName(), friend.getName());
+
+        return List.of(user, friend);
     }
 
     public List<User> getFriendsListById(int id) {

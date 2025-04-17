@@ -56,6 +56,9 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be positive");
+        }
         log.info("Список популярных фильмов отправлен");
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
