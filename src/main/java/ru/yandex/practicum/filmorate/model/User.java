@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -30,4 +32,6 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+
+    private Set<Long> friends = new HashSet<>();
 }
