@@ -54,7 +54,7 @@ public class UserService {
         User firstUser = userStorage.getUser(firstId);
         User secondUser = userStorage.getUser(secondId);
 
-        if (!firstUser.getFriends().contains(secondId) || !secondUser.getFriends().contains(firstId)) {
+        if (!firstUser.getFriends().contains(firstUser.getId()) || !secondUser.getFriends().contains(secondUser.getId())) {
             throw new ValidateException("Пользователи не являются друзьями");
         }
 
