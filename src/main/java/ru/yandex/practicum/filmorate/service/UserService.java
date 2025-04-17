@@ -49,6 +49,8 @@ public class UserService {
     }
 
     public List<User> removeFriendship(int firstId, int secondId) {
+        checkUserExists(firstId);
+        checkUserExists(secondId);
         User firstUser = userStorage.getUser(firstId);
         User secondUser = userStorage.getUser(secondId);
 

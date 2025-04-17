@@ -27,5 +27,5 @@ public class Film {
     @Min(value = 1, message = "Продолжительность фильма должна быть больше 0.")
     private int duration;
 
-    private Set<Long> likes = new HashSet<>();
+    private Set<Integer> likes = new HashSet<>();
 }

@@ -43,22 +43,19 @@ public class FilmService {
 
     public Film addLike(int id, int userId) {
         validateFilmExists(id);
-        filmStorage.getFilm(id).getLikes().add((long) userId);
+        filmStorage.getFilm(id).getLikes().add(userId);
         log.info("Добавлено пользователю {}", userId);
         return filmStorage.getFilm(id);
     }
 
     public Film removeLike(int id, int userId) {
         validateFilmExists(id);
-        filmStorage.getFilm(id).getLikes().remove((long) userId);
+        filmStorage.getFilm(id).getLikes().remove(userId);
         log.info("Удален лайк у пользователя {}", userId);
         return filmStorage.getFilm(id);
     }
 
     public List<Film> getPopularFilms(int count) {
-        if (count <= 0) {
-            throw new IllegalArgumentException("Count must be positive");
-        }
         log.info("Список популярных фильмов отправлен");
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
