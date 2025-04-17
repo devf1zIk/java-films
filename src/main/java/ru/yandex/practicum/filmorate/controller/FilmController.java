@@ -42,16 +42,16 @@ public class FilmController {
 
     @PostMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        return filmService.addLike(id,userId);
+        return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film removeLike(@PathVariable int id, @PathVariable int userId) {
-        return filmService.removeLike(id,userId);
+        return filmService.removeLike(id, userId);
     }
 
     @GetMapping("/popularity")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10",required = false) int count) {
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10", required = false) int count) {
         return filmService.getPopularFilms(count);
     }
 }

@@ -26,7 +26,11 @@ public class FilmService {
     }
 
     public Film getFilm(int id) {
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
+        }
+        return film;
     }
 
     public Collection<Film> getAllFilms() {
@@ -38,7 +42,6 @@ public class FilmService {
     }
 
     public Film addLike(int id, int userId) {
-        validateFilmExists(id);
         filmStorage.getFilm(id).getLikes().add((long) userId);
         log.info("Добавлено пользователю {}", userId);
         return filmStorage.getFilm(id);

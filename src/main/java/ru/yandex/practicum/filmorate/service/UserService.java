@@ -17,6 +17,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User update(User user) {
+        checkUserExists(user.getId());
         return userStorage.updateUser(user);
     }
 
@@ -39,16 +40,10 @@ public class UserService {
     public List<User> addFriendship(int id, int friendId) {
         checkUserExists(id);
         checkUserExists(friendId);
-
-        if (id == friendId) {
-            throw new ValidateException("Нельзя добавить самого себя в друзья");
-        }
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
-
         user.getFriends().add((long) friendId);
         friend.getFriends().add((long) id);
-
         log.info("Пользователи '{}' и '{}' теперь друзья", user.getName(), friend.getName());
         return List.of(user, friend);
     }
