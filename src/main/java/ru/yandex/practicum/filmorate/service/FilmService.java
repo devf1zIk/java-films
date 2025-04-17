@@ -43,7 +43,6 @@ public class FilmService {
 
     public Film addLike(int id, int userId) {
         validateFilmExists(id);
-        validateFilmExists(userId);
         filmStorage.getFilm(id).getLikes().add((long) userId);
         log.info("Добавлено пользователю {}", userId);
         return filmStorage.getFilm(id);
@@ -52,7 +51,8 @@ public class FilmService {
     public Film removeLike(int id, int userId) {
         validateFilmExists(id);
         filmStorage.getFilm(id).getLikes().remove((long) userId);
-        log.info("Удален лайк у пользователя {}", userId);        return filmStorage.getFilm(id);
+        log.info("Удален лайк у пользователя {}", userId);
+        return filmStorage.getFilm(id);
     }
 
     public List<Film> getPopularFilms(int count) {
