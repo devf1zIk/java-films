@@ -37,6 +37,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return storage.get(id);
     }
 
+    @Override
+    public Film deleteFilm(int id) {
+        return storage.remove(id);
+    }
+
     private void validateFilm(Film film) {
         if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             throw new ValidateException("Дата выпуска фильма слишком старая");
