@@ -33,5 +33,5 @@ public class User {
         this.birthday = birthday;
     }
 
-    private Set<Long> friends = new HashSet<>();
+    private Set<Integer> friends = new HashSet<>();
 }

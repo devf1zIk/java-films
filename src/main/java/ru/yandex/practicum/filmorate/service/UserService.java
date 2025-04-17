@@ -33,7 +33,7 @@ public class UserService {
         return userStorage.getUser(id);
     }
 
-    public User deletebyId(int id) {
+    public User deleteById(int id) {
         return userStorage.deleteById(id);
     }
 
@@ -42,8 +42,8 @@ public class UserService {
         checkUserExists(friendId);
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
-        user.getFriends().add((long) friendId);
-        friend.getFriends().add((long) id);
+        user.getFriends().add(friendId);
+        friend.getFriends().add(id);
         log.info("Пользователи '{}' и '{}' теперь друзья", user.getName(), friend.getName());
         return List.of(user, friend);
     }
@@ -52,12 +52,12 @@ public class UserService {
         User firstUser = userStorage.getUser(firstId);
         User secondUser = userStorage.getUser(secondId);
 
-        if (!firstUser.getFriends().contains((long) secondId)) {
+        if (!firstUser.getFriends().contains(secondId) || !secondUser.getFriends().contains(firstId)) {
             throw new ValidateException("Пользователи не являются друзьями");
         }
 
-        firstUser.getFriends().remove((long) secondId);
-        secondUser.getFriends().remove((long) firstId);
+        firstUser.getFriends().remove(secondId);
+        secondUser.getFriends().remove(firstId);
 
         log.info("Пользователи '{}' и '{}' больше не друзья", firstUser.getName(), secondUser.getName());
         return List.of(firstUser, secondUser);
@@ -68,7 +68,7 @@ public class UserService {
         User user = userStorage.getUser(id);
         log.info("Получен список друзей пользователя '{}'", user.getName());
         return user.getFriends().stream()
-                .map(friendId -> userStorage.getUser(friendId.intValue()))
+                .map(userStorage::getUser)
                 .collect(Collectors.toList());
     }
 
@@ -80,10 +80,9 @@ public class UserService {
         User second = userStorage.getUser(myfriendId);
 
         log.info("Список общих друзей: '{}' и '{}' успешно отправлен", first.getName(), second.getName());
-
         return first.getFriends().stream()
-                .filter(friend -> second.getFriends().contains(friend))
-                .map(friendId -> userStorage.getUser(friendId.intValue()))
+                .filter(second.getFriends()::contains)
+                .map(userStorage::getUser)
                 .collect(Collectors.toList());
     }
 
