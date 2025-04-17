@@ -49,9 +49,6 @@ public class UserService {
     }
 
     public List<User> removeFriendship(int firstId, int secondId) {
-        checkUserExists(firstId);
-        checkUserExists(secondId);
-
         User firstUser = userStorage.getUser(firstId);
         User secondUser = userStorage.getUser(secondId);
 
@@ -75,24 +72,24 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<User> getCommon(int id, int friendId) {
-        checkUserExists(id);
-        checkUserExists(friendId);
+    public List<User> getCommon(int me, int myfriendId) {
+        checkUserExists(me);
+        checkUserExists(myfriendId);
 
-        User first = userStorage.getUser(id);
-        User second = userStorage.getUser(friendId);
+        User first = userStorage.getUser(me);
+        User second = userStorage.getUser(myfriendId);
 
         log.info("Список общих друзей: '{}' и '{}' успешно отправлен", first.getName(), second.getName());
 
         return first.getFriends().stream()
                 .filter(friend -> second.getFriends().contains(friend))
-                .map(drugid -> userStorage.getUser(drugid.intValue()))
+                .map(friendId -> userStorage.getUser(friendId.intValue()))
                 .collect(Collectors.toList());
     }
 
     private void checkUserExists(int id) {
         if (userStorage.getUser(id) == null) {
-            throw new NotFoundException("Пользователь с id=" + id + " не найден");
+            throw new NotFoundException("Пользователь с ID " + id + " не найден");
         }
     }
 }

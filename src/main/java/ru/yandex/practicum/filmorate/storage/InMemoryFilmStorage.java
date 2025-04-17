@@ -20,10 +20,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        validateFilm(film);
         if (film == null) {
-            throw new ValidateException("Фильм не может быть пустым или без id");
+            throw new ValidateException("Фильм не может быть пустым");
         }
+        validateFilm(film);
         if (!storage.containsKey(film.getId())) {
             throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
         }

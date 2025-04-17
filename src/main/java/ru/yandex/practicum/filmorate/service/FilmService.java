@@ -42,6 +42,8 @@ public class FilmService {
     }
 
     public Film addLike(int id, int userId) {
+        validateFilmExists(id);
+        validateFilmExists(userId);
         filmStorage.getFilm(id).getLikes().add((long) userId);
         log.info("Добавлено пользователю {}", userId);
         return filmStorage.getFilm(id);
@@ -54,6 +56,9 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be positive");
+        }
         log.info("Список популярных фильмов отправлен");
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
