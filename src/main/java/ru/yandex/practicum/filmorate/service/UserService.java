@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -36,6 +37,12 @@ public class UserService {
     }
 
     public List<User> addFriendship(int id, int friendId) {
+        checkUserExists(id);
+        checkUserExists(friendId);
+
+        if (id == friendId) {
+            throw new ValidateException("Нельзя добавить самого себя в друзья");
+        }
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
 
@@ -47,6 +54,9 @@ public class UserService {
     }
 
     public List<User> removeFriendship(int firstId, int secondId) {
+        checkUserExists(firstId);
+        checkUserExists(secondId);
+
         User firstUser = userStorage.getUser(firstId);
         User secondUser = userStorage.getUser(secondId);
 
@@ -62,6 +72,7 @@ public class UserService {
     }
 
     public List<User> getFriendsListById(int id) {
+        checkUserExists(id);
         User user = userStorage.getUser(id);
         log.info("Получен список друзей пользователя '{}'", user.getName());
         return user.getFriends().stream()
@@ -70,6 +81,9 @@ public class UserService {
     }
 
     public List<User> getCommon(int id, int friendId) {
+        checkUserExists(id);
+        checkUserExists(friendId);
+
         User first = userStorage.getUser(id);
         User second = userStorage.getUser(friendId);
 
@@ -79,5 +93,11 @@ public class UserService {
                 .filter(friend -> second.getFriends().contains(friend))
                 .map(drugid -> userStorage.getUser(drugid.intValue()))
                 .collect(Collectors.toList());
+    }
+
+    private void checkUserExists(int id) {
+        if (userStorage.getUser(id) == null) {
+            throw new NotFoundException("Пользователь с id=" + id + " не найден");
+        }
     }
 }
