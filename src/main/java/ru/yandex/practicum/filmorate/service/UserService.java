@@ -63,9 +63,9 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public List<User> getCommon(int me, int myfriendId) {
-        User first = userStorage.getUser(me);
-        User second = userStorage.getUser(myfriendId);
+    public List<User> getCommon(int id, int otherId) {
+        User first = userStorage.getUser(id);
+        User second = userStorage.getUser(otherId);
 
         log.info("Список общих друзей: '{}' и '{}' успешно отправлен", first.getName(), second.getName());
         return first.getFriends().stream()

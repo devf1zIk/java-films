@@ -53,18 +53,14 @@ public class FilmService {
 
     public Film removeLike(int id, int userId) {
         Film film = filmStorage.getFilm(id);
-        if (film == null) {
-            throw new NotFoundException("Фильм с id=" + id + " не найден");
-        }
         film.getLikes().remove(userId);
         log.info("Удалён лайк от пользователя {} у фильма с id={}", userId, id);
         return film;
     }
 
     public List<Film> getPopularFilms(int count) {
-        log.info("Список популярных фильмов отправлен");
         return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
+                .sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
     }
