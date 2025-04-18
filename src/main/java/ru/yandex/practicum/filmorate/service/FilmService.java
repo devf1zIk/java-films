@@ -47,6 +47,7 @@ public class FilmService {
             throw new NotFoundException("Фильм с id=" + id + " не найден");
         }
         film.getLikes().add(userId);
+        filmStorage.updateFilm(film);
         log.info("Добавлен лайк от пользователя {}", userId);
         return film;
     }
@@ -54,13 +55,16 @@ public class FilmService {
     public Film removeLike(int id, int userId) {
         Film film = filmStorage.getFilm(id);
         film.getLikes().remove(userId);
+        filmStorage.updateFilm(film);
         log.info("Удалён лайк от пользователя {} у фильма с id={}", userId, id);
         return film;
     }
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getAllFilms().stream()
-                .sorted(Comparator.comparingInt(f -> -f.getLikes().size()))
+                .sorted(Comparator
+                        .comparingInt((Film f) -> f.getLikes().size()).reversed()
+                        .thenComparingInt(Film::getId))
                 .limit(count)
                 .collect(Collectors.toList());
     }
