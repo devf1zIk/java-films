@@ -40,7 +40,7 @@ public class UserController {
         return userService.deleteById(id);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
+    @GetMapping("/{id}/friends/{friendId}")
     public List<User> addFriend(@PathVariable int id, @PathVariable int friendId) {
         return userService.addFriendship(id, friendId);
     }
