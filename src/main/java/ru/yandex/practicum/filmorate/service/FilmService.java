@@ -54,6 +54,9 @@ public class FilmService {
 
     public Film removeLike(int id, int userId) {
         Film film = filmStorage.getFilm(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
+        }
         film.getLikes().remove(userId);
         filmStorage.updateFilm(film);
         log.info("Удалён лайк от пользователя {} у фильма с id={}", userId, id);
@@ -62,6 +65,7 @@ public class FilmService {
 
     public List<Film> getPopularFilms(int count) {
         return filmStorage.getAllFilms().stream()
+                .filter(f -> !f.getLikes().isEmpty())
                 .sorted(Comparator
                         .comparingInt((Film f) -> f.getLikes().size()).reversed()
                         .thenComparingInt(Film::getId))
