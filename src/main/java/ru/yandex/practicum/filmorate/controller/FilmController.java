@@ -40,7 +40,7 @@ public class FilmController {
         return filmService.getFilm(id);
     }
 
-    @PostMapping("/{id}/like/{userId}")
+    @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
         return filmService.addLike(id, userId);
     }
