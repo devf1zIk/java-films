@@ -37,8 +37,6 @@ public class UserService {
     }
 
     public List<User> addFriendship(int id, int friendId) {
-        checkUserExists(id);
-        checkUserExists(friendId);
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
         user.getFriends().add(friendId);
