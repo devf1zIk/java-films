@@ -42,33 +42,30 @@ public class FilmService {
     }
 
     public Film addLike(int id, int userId) {
-        validateFilmExists(id);
-        filmStorage.getFilm(id).getLikes().add(userId);
-        log.info("Добавлено пользователю {}", userId);
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
+        }
+        film.getLikes().add(userId);
+        log.info("Добавлен лайк от пользователя {}", userId);
+        return film;
     }
 
     public Film removeLike(int id, int userId) {
-        validateFilmExists(id);
-        filmStorage.getFilm(id).getLikes().remove(userId);
-        log.info("Удален лайк у пользователя {}", userId);
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        if (film == null) {
+            throw new NotFoundException("Фильм с id=" + id + " не найден");
+        }
+        film.getLikes().remove(userId);
+        log.info("Удалён лайк от пользователя {} у фильма с id={}", userId, id);
+        return film;
     }
 
     public List<Film> getPopularFilms(int count) {
-        if (count <= 0) {
-            throw new IllegalArgumentException("Count must be positive");
-        }
         log.info("Список популярных фильмов отправлен");
         return filmStorage.getAllFilms().stream()
                 .sorted(Comparator.comparingInt((Film f) -> f.getLikes().size()).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
-    }
-
-    private void validateFilmExists(int id) {
-        if (filmStorage.getFilm(id) == null) {
-            throw new NotFoundException("Фильм с id=" + id + " не найден");
-        }
     }
 }

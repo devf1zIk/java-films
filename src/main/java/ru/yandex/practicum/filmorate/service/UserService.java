@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.List;
@@ -16,7 +15,6 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User update(User user) {
-        checkUserExists(user.getId());
         return userStorage.updateUser(user);
     }
 
@@ -74,11 +72,5 @@ public class UserService {
                 .filter(second.getFriends()::contains)
                 .map(userStorage::getUser)
                 .collect(Collectors.toList());
-    }
-
-    private void checkUserExists(int id) {
-        if (userStorage.getUser(id) == null) {
-            throw new NotFoundException("Пользователь с ID " + id + " не найден");
-        }
     }
 }
