@@ -4,13 +4,12 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
@@ -22,7 +21,16 @@ class FilmControllerTest {
     void setUp() {
         InMemoryFilmStorage storage = new InMemoryFilmStorage();
         InMemoryUserStorage storageUser = new InMemoryUserStorage();
-        FilmService filmService = new FilmService(storage,storageUser);
+
+        User user1 = new User(1, "user1@example.com", "user1", "test", LocalDate.of(1990, 1, 1));
+        User user2 = new User(2, "user2@example.com", "user2", "test", LocalDate.of(1991, 2, 2));
+        User user3 = new User(3, "user3@example.com", "user3", "test", LocalDate.of(1992, 3, 3));
+
+        storageUser.createUser(user1);
+        storageUser.createUser(user2);
+        storageUser.createUser(user3);
+
+        FilmService filmService = new FilmService(storage, storageUser);
         filmController = new FilmController(filmService);
 
         film = new Film();
