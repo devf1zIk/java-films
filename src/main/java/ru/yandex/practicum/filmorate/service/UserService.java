@@ -52,6 +52,10 @@ public class UserService {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
 
+        if (user == null || friend == null) {
+            throw new NotFoundException("Один из пользователей не найден");
+        }
+
         if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
             throw new ValidateException("Пользователи не являются друзьями");
         }
