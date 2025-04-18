@@ -52,14 +52,6 @@ public class UserService {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
 
-        if (user == null || friend == null) {
-            throw new NotFoundException("Один из пользователей не найден");
-        }
-
-        if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
-            throw new ValidateException("Пользователи не являются друзьями");
-        }
-
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
 
@@ -69,7 +61,6 @@ public class UserService {
     }
 
     public List<User> getFriendsListById(int id) {
-        checkUserExists(id);
         User user = userStorage.getUser(id);
         log.info("Получен список друзей пользователя '{}'", user.getName());
         return user.getFriends().stream()
@@ -78,9 +69,6 @@ public class UserService {
     }
 
     public List<User> getCommon(int me, int myfriendId) {
-        checkUserExists(me);
-        checkUserExists(myfriendId);
-
         User first = userStorage.getUser(me);
         User second = userStorage.getUser(myfriendId);
 
