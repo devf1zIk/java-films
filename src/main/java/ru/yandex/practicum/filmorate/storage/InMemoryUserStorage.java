@@ -19,15 +19,8 @@ public class InMemoryUserStorage implements UserStorage {
         return nextId++;
     }
 
-    private void validateUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-    }
-
     @Override
     public User createUser(User user) {
-        validateUser(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Пользователь с email '{}' добавлен с ID {}", user.getEmail(), user.getId());

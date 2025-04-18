@@ -14,11 +14,19 @@ public class UserService {
 
     private final UserStorage userStorage;
 
+    private void validateUser(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+    }
+
     public User update(User user) {
+        validateUser(user);
         return userStorage.updateUser(user);
     }
 
     public User create(User user) {
+        validateUser(user);
         return userStorage.createUser(user);
     }
 
@@ -34,16 +42,15 @@ public class UserService {
         return userStorage.deleteById(id);
     }
 
-    public List<User> addFriendship(int id, int friendId) {
+    public void addFriendship(int id, int friendId) {
         User user = userStorage.getUser(id);
         User friend = userStorage.getUser(friendId);
         user.getFriends().add(friendId);
         friend.getFriends().add(id);
         log.info("Пользователи '{}' и '{}' теперь друзья", user.getName(), friend.getName());
-        return List.of(user, friend);
     }
 
-    public List<User> removeFriendship(int userId, int friendId) {
+    public void removeFriendship(int userId, int friendId) {
         User user = userStorage.getUser(userId);
         User friend = userStorage.getUser(friendId);
 
@@ -51,8 +58,6 @@ public class UserService {
         friend.getFriends().remove(userId);
 
         log.info("Пользователи '{}' и '{}' больше не друзья", user.getName(), friend.getName());
-
-        return List.of(user, friend);
     }
 
     public List<User> getFriendsListById(int id) {

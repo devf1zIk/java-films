@@ -3,9 +3,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -20,10 +22,12 @@ public class FilmService {
     private final UserStorage userStorage;
 
     public Film create(Film film) {
+        validateFilm(film);
         return filmStorage.addFilm(film);
     }
 
     public Film update(Film film) {
+        validateFilm(film);
         return filmStorage.updateFilm(film);
     }
 
@@ -43,7 +47,7 @@ public class FilmService {
         return filmStorage.deleteFilm(id);
     }
 
-    public Film addLike(int id, int userId) {
+    public void addLike(int id, int userId) {
         Film film = filmStorage.getFilm(id);
         if (film == null) {
             throw new NotFoundException("Фильм с id=" + id + " не найден");
@@ -52,10 +56,9 @@ public class FilmService {
         film.getLikes().add(userId);
         filmStorage.updateFilm(film);
         log.info("Добавлен лайк от пользователя {}", userId);
-        return film;
     }
 
-    public Film removeLike(int id, int userId) {
+    public void removeLike(int id, int userId) {
         Film film = filmStorage.getFilm(id);
         if (film == null) {
             throw new NotFoundException("Фильм с id=" + id + " не найден");
@@ -64,7 +67,6 @@ public class FilmService {
         film.getLikes().remove(userId);
         filmStorage.updateFilm(film);
         log.info("Удалён лайк от пользователя {} у фильма с id={}", userId, id);
-        return film;
     }
 
     public List<Film> getPopularFilms(int count) {
@@ -75,5 +77,14 @@ public class FilmService {
                         .thenComparingInt(Film::getId))
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private void validateFilm(Film film) {
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidateException("Дата выпуска фильма слишком старая");
+        }
+        if (film.getDuration() <= 0) {
+            throw new ValidateException("Продолжительность фильма должна быть больше 0");
+        }
     }
 }
