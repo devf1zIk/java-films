@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.yandex.practicum.filmorate.validate.ReleaseDateConstraint;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -24,4 +26,6 @@ public class Film {
 
     @Min(value = 1, message = "Продолжительность фильма должна быть больше 0.")
     private int duration;
+
+    private Set<Integer> likes = new HashSet<>();
 }

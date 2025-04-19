@@ -4,16 +4,35 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidateException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import java.time.LocalDate;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
+
     private FilmController filmController;
     private Film film;
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController();
+        InMemoryFilmStorage storage = new InMemoryFilmStorage();
+        InMemoryUserStorage storageUser = new InMemoryUserStorage();
+
+        User user1 = new User(1, "user1@example.com", "user1", "test", LocalDate.of(1990, 1, 1));
+        User user2 = new User(2, "user2@example.com", "user2", "test", LocalDate.of(1991, 2, 2));
+        User user3 = new User(3, "user3@example.com", "user3", "test", LocalDate.of(1992, 3, 3));
+
+        storageUser.createUser(user1);
+        storageUser.createUser(user2);
+        storageUser.createUser(user3);
+
+        FilmService filmService = new FilmService(storage, storageUser);
+        filmController = new FilmController(filmService);
+
         film = new Film();
         film.setName("Harry Potter");
         film.setDescription("Harry Potter & Potter 4");
@@ -24,8 +43,8 @@ class FilmControllerTest {
     @Test
     void addFilmValidShouldAddToStorage() {
         Film result = filmController.createFilm(film);
-        assertNotNull(result.getId());
-        assertEquals(1, filmController.getFilms().size());
+        assertNotNull(result.getId(), "ID фильма должен быть установлен");
+        assertEquals(1, filmController.getAllFilms().size(), "Фильм должен добавиться в хранилище");
     }
 
     @Test
@@ -35,14 +54,58 @@ class FilmControllerTest {
         invalid.setDescription("Сюжет трилогии следует за хоббитом Фродо Бэггинсом");
         invalid.setReleaseDate(LocalDate.of(1890, 1, 1));
         invalid.setDuration(0);
-        assertThrows(ValidateException.class, () -> filmController.createFilm(invalid));
+
+        assertThrows(ValidateException.class, () -> filmController.createFilm(invalid),
+                "Должно выбрасываться исключение валидации");
     }
 
     @Test
     void updateFilmValidShouldUpdateStorage() {
         Film result = filmController.createFilm(film);
-        result.setName("Update Potter");
-        filmController.updateFilm(result);
-        assertEquals("Update Potter", filmController.getFilms().get(0).getName());
+        result.setName("Updated Potter");
+
+        Film updated = filmController.updateFilm(result);
+        assertEquals("Updated Potter", updated.getName(), "Имя фильма должно обновиться");
+    }
+
+    @Test
+    void deleteFilmShouldRemoveFromStorage() {
+        Film created = filmController.createFilm(film);
+        filmController.deleteFilm(created.getId());
+
+        assertTrue(filmController.getAllFilms().isEmpty(), "Фильм должен быть удалён");
+    }
+
+    @Test
+    void addAndRemoveLikeShouldAffectLikesSize() {
+        Film created = filmController.createFilm(film);
+
+        filmController.addLike(created.getId(), 1);
+        Film liked = filmController.getFilmById(created.getId());
+        assertEquals(1, liked.getLikes().size(), "Количество лайков должно быть 1");
+
+        filmController.removeLike(created.getId(), 1);
+        Film unliked = filmController.getFilmById(created.getId());
+        assertEquals(0, unliked.getLikes().size(), "Лайк должен быть удалён");
+    }
+
+    @Test
+    void getPopularFilmsShouldReturnSortedList() {
+        Film film1 = filmController.createFilm(film);
+
+        Film film2 = new Film();
+        film2.setName("Spider-Man");
+        film2.setDescription("Spider-Man returns");
+        film2.setReleaseDate(LocalDate.of(2012, 7, 3));
+        film2.setDuration(120);
+        film2 = filmController.createFilm(film2);
+
+        filmController.addLike(film2.getId(), 1);
+        filmController.addLike(film2.getId(), 2);
+
+        filmController.addLike(film1.getId(), 3);
+
+        List<Film> popular = filmController.getPopularFilms(2);
+        assertEquals(film2.getId(), popular.get(0).getId(), "Фильм с наибольшим количеством лайков должен быть первым");
     }
 }
