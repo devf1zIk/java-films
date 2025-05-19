@@ -32,7 +32,7 @@ class FilmorateApplicationTests {
 	private final MpaDbStorage mpaStorage;
 
 	@BeforeEach
-	void setUp(){
+	void setUp() {
 		userStorage.create(new User(1, "altynai@example.com", "altynai_a", "Altynai", LocalDate.of(1995, 3, 10)));
 		userStorage.create(new User(2, "nurbol@example.com", "nurbol_n", "Nurbol", LocalDate.of(1992, 8, 5)));
 		userStorage.create(new User(3, "zhanel@example.com", "zhanel_z", "Zhanel", LocalDate.of(1990, 12, 1)));
@@ -56,7 +56,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void testGetAllUsers(){
+	void testGetAllUsers() {
 		List<User> users = userStorage.findAll();
 		assertThat(users).hasSize(3);
 		assertThat(users).extracting(User::getName)
@@ -64,21 +64,21 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void testGetByUserId(){
+	void testGetByUserId() {
 		int id = userStorage.findAll().getFirst().getId();
 		Optional<User> user = userStorage.findById(id);
 		assertThat(user).hasValueSatisfying(u -> assertThat(u.getId()).isEqualTo(id));
 	}
 
 	@Test
-	void testFriends(){
+	void testFriends() {
 		int id = userStorage.findAll().getFirst().getId();
 		List<User> friends = userStorage.getFriends(id);
 		assertThat(friends).hasSize(1);
 	}
 
 	@Test
-	void testAddFriend(){
+	void testAddFriend() {
 		User user = new User(9,"f1zIk@gmail.com","f1zIk","alkaw",LocalDate.of(2004,04,04));
 		userStorage.create(user);
 		int id = userStorage.findAll().getLast().getId();
@@ -90,14 +90,14 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void testAllFilms(){
+	void testAllFilms() {
 		List<Film> films = filmStorage.findAll();
 		assertThat(films).hasSize(3);
 		assertThat(films).extracting(Film::getName).containsExactlyInAnyOrder("Келін","Жаужүрек мың бала","Анаға апарар жол");
 	}
 
 	@Test
-	void TestFilmId(){
+	void testFilmId() {
 		Optional<Film> film = filmStorage.findById(1);
 		assertThat(film).isNotNull();
 	}
