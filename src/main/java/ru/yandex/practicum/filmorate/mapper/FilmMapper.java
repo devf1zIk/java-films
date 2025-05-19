@@ -13,10 +13,10 @@ public class FilmMapper implements RowMapper<Film> {
 
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         Mpa rating = null;
-        String rateName = rs.getString("rating_name");
+        String rateName = rs.getString("mpa_name");
         if (rateName != null) {
             try {
-                rating = new Mpa(rs.getLong("rate_id"),rateName);
+                rating = new Mpa(rs.getLong("mpa_id"),rateName);
             } catch (IllegalArgumentException e) {
                 throw new NotFoundException("Некорректный рейтинг!" + rateName);
             }
@@ -32,5 +32,4 @@ public class FilmMapper implements RowMapper<Film> {
                 new HashSet<>()
         );
     }
-
 }
