@@ -34,6 +34,6 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     private Mpa mapToMpa(ResultSet rs, int rowNum) throws SQLException {
-        return new Mpa(rs.getLong("id"), rs.getString("name"));
+        return new Mpa(rs.getInt("id"), rs.getString("name"));
     }
 }

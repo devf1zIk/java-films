@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,8 +17,22 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
     public Film create(Film film) {
+        Mpa mpa = mpaStorage.getById(film.getMpa().getId());
+        if (mpa == null) {
+            throw new NotFoundException("MPA с id=" + film.getMpa().getId() + " не найден");
+        }
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                Genre checked = genreStorage.getById(genre.getId());
+                if (checked == null) {
+                    throw new NotFoundException("Жанр с id=" + genre.getId() + " не найден");
+                }
+            }
+        }
         return filmStorage.create(film);
     }
 

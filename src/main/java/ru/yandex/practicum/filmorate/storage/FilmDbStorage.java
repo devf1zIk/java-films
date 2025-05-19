@@ -128,12 +128,12 @@ public class FilmDbStorage implements FilmStorage {
         int filmId = rs.getInt("id");
 
         Mpa mpa = jdbcTemplate.queryForObject("SELECT * FROM mpa WHERE id = ?",
-                (mprs, rn) -> new Mpa(mprs.getLong("id"), mprs.getString("name")),
+                (mprs, rn) -> new Mpa(mprs.getInt("id"), mprs.getString("name")),
                 rs.getInt("mpa_id"));
 
         Set<Genre> genres = new HashSet<>(jdbcTemplate.query(
                 "SELECT g.id, g.name FROM film_genres fg JOIN genres g ON fg.genre_id = g.id WHERE fg.film_id = ?",
-                (grs, rn) -> new Genre(grs.getLong("id"), grs.getString("name")),
+                (grs, rn) -> new Genre(grs.getInt("id"), grs.getString("name")),
                 filmId
         ));
 
