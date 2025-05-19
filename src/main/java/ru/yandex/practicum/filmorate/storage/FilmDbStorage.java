@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -39,6 +40,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
+        String checkSql = "SELECT COUNT(*) FROM films WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, film.getId());
+
+        if (count == null || count == 0) {
+            throw new NotFoundException("Фильм с id=" + film.getId() + " не найден");
+        }
         String sql = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
         jdbcTemplate.update(sql,
                 film.getName(),
@@ -87,6 +94,21 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, filmId, userId);
     }
+
+    @Override
+    public List<Film> findPopularFilms(int count) {
+        String sql = """
+        SELECT f.*, COUNT(fl.user_id) AS like_count
+        FROM films f
+        LEFT JOIN film_likes fl ON f.id = fl.film_id
+        GROUP BY f.id
+        ORDER BY like_count DESC, f.id ASC
+        LIMIT ?
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapRowToFilm(rs, rowNum), count);
+    }
+
 
     private Set<Integer> loadLikes(int filmId) {
         String sql = "SELECT user_id FROM film_likes WHERE film_id = ?";

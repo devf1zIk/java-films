@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import java.sql.*;
 import java.util.List;
@@ -35,8 +36,22 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
+        String checkSql = "SELECT COUNT(*) FROM users WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(checkSql, Integer.class, user.getId());
+
+        if (count == null || count == 0) {
+            throw new NotFoundException("Пользователь с id=" + user.getId() + " не найден");
+        }
+
         String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getLogin(), user.getName(), Date.valueOf(user.getBirthday()), user.getId());
+        jdbcTemplate.update(sql,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                Date.valueOf(user.getBirthday()),
+                user.getId()
+        );
+
         return user;
     }
 
@@ -90,5 +105,16 @@ public class UserDbStorage implements UserStorage {
                 rs.getString("name"),
                 rs.getDate("birthday").toLocalDate()
         );
+    }
+
+    @Override
+    public List<User> getCommonFriends(int userId, int otherUserId) {
+        String sql = """
+        SELECT u.* FROM users u
+        JOIN friends f1 ON u.id = f1.friend_id
+        JOIN friends f2 ON u.id = f2.friend_id
+        WHERE f1.user_id = ? AND f2.user_id = ?
+        """;
+        return jdbcTemplate.query(sql, this::mapRowToUser, userId, otherUserId);
     }
 }

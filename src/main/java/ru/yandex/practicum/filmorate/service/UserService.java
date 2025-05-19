@@ -14,19 +14,11 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    private void validateUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-    }
-
     public User create(User user) {
-        validateUser(user);
         return userStorage.create(user);
     }
 
     public User update(User user) {
-        validateUser(user);
         return userStorage.update(user);
     }
 
@@ -72,11 +64,6 @@ public class UserService {
         getId(id);
         getId(otherId);
 
-        List<User> firstFriends = userStorage.getFriends(id);
-        List<User> secondFriends = userStorage.getFriends(otherId);
-
-        return firstFriends.stream()
-                .filter(u -> secondFriends.stream().anyMatch(s -> s.getId() == u.getId()))
-                .toList();
+        return userStorage.getCommonFriends(id, otherId);
     }
 }
